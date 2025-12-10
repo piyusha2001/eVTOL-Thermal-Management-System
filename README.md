@@ -1,117 +1,97 @@
-# 🏙️ Thermal Management System for Urban Air Mobility (UAM) eVTOLs
+# 🏙️ Thermal Management Systems for Urban Air Mobility (UAM) eVTOLs
 
 ## ✈️ Project Overview
-This project models a **Centralized Thermal Management System (CTMS)** specifically designed for **next-generation electric Vertical Take-Off and Landing (eVTOL)** aircraft used in **Urban Air Mobility (UAM)**. 
+This project simulates thermal management strategies for **next-generation electric Vertical Take-Off and Landing (eVTOL)** aircraft used in **Urban Air Mobility (UAM)**. 
 
-As commercial electric air taxis move towards certification for city-based operations, managing heat dissipation in high-density avionics and flight computers is a critical safety challenge. This project simulates an active **liquid-based cooling loop** to ensure operational reliability during high-stress flight phases common in urban logistics and passenger transport.
+The repository contains **two distinct simulation models** developed in **MATLAB/Simulink**:
+1.  **Centralized Liquid Cooling System:** For high-power avionics and flight control computers.
+2.  **Localized Environmental Control System (ECS):** For sensitive optical sensors (LiDAR).
 
----
-
-## 🎯 Key Objectives
-*   **Civilian Safety Compliance:** Maintain critical flight hardware within safe operating temperatures defined by civilian aviation standards (NASA/SAE).
-*   **Efficiency for Urban Range:** Optimize the cooling loop to minimize power draw, extending the range of commercial electric aircraft.
-*   **System Reliability:** Use **PI (Proportional-Integral) control** to dynamically regulate temperatures for avionics, cockpit electronics, and flight control systems.
+**Note:** These models use synthetic heat loads and mathematical representations of components to validate thermal control logic under civilian aviation standards (NASA/SAE). No physical hardware or restricted sensor data was used.
 
 ---
+
+# 🔹 Module A: Centralized Liquid Cooling System
+**Target:** Avionics, Cockpit Display, Flight Control Computer (FCC).
 
 ## 🌡️ System Architecture  
+This module simulates an active **liquid-based cooling loop** (Ethylene Glycol 60% / Water 40%) designed to manage high-heat-flux components distributed across the aircraft.
 
-The model simulates a thermal architecture for a commercial eVTOL, consisting of **three primary subsystems** connected to a shared coolant loop (Ethylene Glycol 60% / Water 40%).
+### Subsystems Modeled
+*   **Avionics Loop:** Cools navigation sensors (GNSS, IMU) using a cold plate interface.
+*   **Cockpit Loop:** Regulates cabin electronics temperature for pilot/passenger safety.
+*   **FCC Loop:** Ensures thermal stability of primary flight computers.
 
-### 1. Avionics Cooling Loop (Navigation & Safety)
-- Cools standard commercial navigation sensors (GNSS receiver, IMU, barometer).  
-- Uses a cold plate interface connected to the main loop.  
-- Temperature monitored via `temperature_avionics` feedback.
+### Control Logic
+*   **Ideal Set-point:** 25 °C.
+*   **Mechanism:** PI Controllers dynamically adjust flow valves based on real-time temperature feedback.
+*   **Active Thermal Management:**
+    *   **Heating:** Inline heater activates if $T_{liquid} < 15^\circ C$ (Cold start/High altitude).
+    *   **Cooling:** Radiator fan activates if any component $T > 35^\circ C$.
 
-### 2. Cockpit Cooling Loop (Pilot/Passenger Interface)
-- Regulates the temperature for the cockpit display and cabin electronics to ensure pilot/passenger safety.  
-- Controlled via a dedicated cold plate and `PI Valve (Cockpit)`.
-
-### 3. Flight Control Computer (FCC) Loop  
-- Ensures stable operation of the primary flight computers during autonomous hovering and transition phases.  
-- Uses its own PI valve with feedback from `temperature_FCC`.
-
----
-
-## 🔧 Working Principle  
-
-### Ideal Temperature Control  
-- **Target set-point:** 25 °C (Optimal for electronics longevity).  
-- Each subsystem continuously compares its real-time temperature to the set-point.  
-- The **PI Controller** dynamically adjusts flow:  
-  - **Cold valve** → Opens when T > 25 °C  
-  - **Hot valve** → Opens when T < 25 °C  
-
-### Active Thermal Management  
-- **Pre-Heating:** When **liquid temperature < 15 °C**, the **inline heater** activates (crucial for high-altitude or winter urban operations).  
-- **Active Cooling:** When any subsystem’s **max temperature > 35 °C**, the **radiator fan** activates for rapid heat rejection.  
-
----
-
-## 🧠 Control Logic Summary  
-
-| Condition | Action | Safety Purpose |
-|------------|--------|----------------|
-| `T_liquid < 15 °C` | Inline heater **ON** | Prevent component freezing/lag |
-| `T_component > 35 °C` | Radiator fan **ON** | Prevent thermal runaway |
-| `T_component > 25 °C` | Cold valve **opens** | Maintain nominal operation |
-| `T_component < 25 °C` | Hot valve **opens** | Optimize energy efficiency |
-
----
-
-## ⚙️ Components Modeled  
-
-- **Reservoir:** Ethylene glycol (60%) + Water (40%) mixture (Standard aviation coolant)  
-- **Cold plates:** Interface for thermal exchange  
-- **PI Controllers:** Independent feedback loops for precise regulation  
-- **Sensors:** Temperature feedback for safety logic  
-- **Radiator & Fan:** Air-based heat rejection system  
-- **Inline Heater:** Environmental control for cold-start scenarios  
-
----
-
-## 🧩 Simulation Capabilities 
-
-This model is implemented in **MATLAB/Simulink** to analyze:  
-- **Thermal Stability:** Response to variable ambient temperatures in city environments.  
-- **Controller Tuning:** Dynamic response of PI controllers to sudden load changes.  
-- **Energy Efficiency:** Power consumption of the cooling system during a standard urban mission profile.
-
----
-
-## 📊 Ideal Operating Range  
-
-| Subsystem | Ideal Temp | Safe Range | Cooling Trigger | Heating Trigger |
-|------------|-------------|-------------|----------------|----------------|
-| Avionics | 25 °C | 20–35 °C | > 35 °C | < 15 °C |
-| Cockpit | 25 °C | 20–35 °C | > 35 °C | < 15 °C |
-| FCC | 25 °C | 20–35 °C | > 35 °C | < 15 °C |
-
----
-
-## 🖼️ System Diagram  
-
+### 🖼️ System Diagram (Centralized Loop)
 <img width="1475" height="724" alt="CTMS Architecture" src="https://github.com/user-attachments/assets/3241bdc9-281b-4bcc-ae6f-de3cfbfcc9ff" />
 
 ---
 
-## 📈 Simulation Results  
+# 🔹 Module B: LiDAR Environmental Control System (ECS)
+**Target:** LiDAR Pod (Obstacle Detection Sensor).
 
-**Test Case:** Thermal regulation during a simulated flight profile.  
-**Ambient Condition:** 25 °C (Standard Day).
+## 📡 System Architecture
+Unlike the centralized liquid loop, the LiDAR sensor requires a **localized, hybrid cooling solution** due to its placement in an external pod. This model simulates a **solid-state cooling and air-ventilation system** (No liquid loop).
 
+### 🔧 Physics Modeled
+The Simulink model represents the LiDAR as a **mathematical heat source** enclosed in a Carbon Fiber/Polymer Foam pod.
+
+*   **Cooling Mechanism:**
+    *   **Cold Plate:** Passive conduction interface.
+    *   **Thermoelectric Cooler (TEC):** Active Peltier cooling for rapid heat reduction.
+    *   **Heatsink & Air Vents:** Forced air convection to dissipate heat to the ambient environment.
+*   **Heating Mechanism:**
+    *   **Kapton Film Heaters:** Simulated to activate to prevent lens fogging in cold conditions (< 5 °C).
+
+### 🖼️ Simulation Model (LiDAR)
+<img width="1123" height="612" alt="Screenshot 2025-12-10 205019" src="https://github.com/user-attachments/assets/50b12e1b-8f07-4876-a5ed-25deaa64dcbc" />
+
+*Figure 1: Simulink block diagram showing the interaction between the TEC, Heatsink, and Air Vents logic.*
+
+---
+
+## 📈 Simulation Results
+
+### 1. Centralized Liquid Loop Results
+**Scenario:** Standard Urban Flight Profile (Ambient 25 °C).
 - **Cockpit Display:** Cooled from **39 °C → 31 °C** (Stabilized).
 - **Flight Control Computer:** Cooled from **37 °C → 28 °C** (Optimal).
 - **Avionics Module:** Warmed from **10 °C → 24 °C** (Cold-start protection).
 
-All systems stabilized within the **civilian operational safety range (25–30 °C)**.
-
 <img width="686" height="452" alt="Simulation Graph" src="https://github.com/user-attachments/assets/04319118-0bf3-44b1-91ee-95385b04f4ec" />
+
+### 2. LiDAR ECS Results
+**Scenario:** Extreme Heat Day Operation.
+*   **Initial Condition:** Sensor initialized at **45 °C** (Ambient 45 °C).
+*   **Target Operational Range:** 20 °C – 40 °C.
+*   **Performance:**
+    *   The TEC and Vents activated immediately upon initialization.
+    *   Heat was successfully dissipated via the heatsink.
+    *   **Final Temperature:** Stabilized at **34–35 °C**.
+
+<img width="698" height="519" alt="Screenshot 2025-12-10 205104" src="https://github.com/user-attachments/assets/f77a241d-17f4-4249-b073-e9bbd2c13d54" />
+
+*Figure 2: Scope result showing LiDAR pod temperature dropping from 45°C to a safe 34°C.*
+
+---
+
+## 🧩 Technical Capabilities 
+
+This repository demonstrates proficiency in:
+- **MATLAB/Simulink:** creating custom thermal plants and logical control loops.
+- **Heat Transfer Physics:** Modeling conduction (cold plates), convection (radiators/vents), and radiation.
+- **Control Theory:** Tuning PI controllers for thermal lag compensation.
+- **Civilian Safety Standards:** Adhering to temperature limits defined for commercial avionics.
 
 ---
 
 ## 🧾 References  
-
 - **NASA**: eVTOL Power and Thermal Management Studies.  
-- **SAE ARP1256**: Aircraft Environmental Control Systems (Civilian Standard).  
-- **MATLAB/Simulink**: Thermal Modeling Documentation.
+- **SAE ARP1256**: Aircraft Environmental Control Systems (Civilian Standard).
